@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>MOBILESCRIPT Task Board</title>
+  <title>Mobilescript Task Board</title>
   <style>
     body {
       font-family: Arial;
@@ -51,53 +51,46 @@
       box-sizing: border-box;
     }
 
-    /* Add Task buttons */
+    .task {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+
     button {
-      padding: 5px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 5px;
-      width: 100%;
-      background: #3498db;
-      color: white;
-    }
-
-    button:hover {
-      background: #2980b9;  /* hover effect for Add Task button */
-    }
-
-    /* Delete button styles */
-    button.delete-btn {
       margin-left: 5px;
       padding: 3px 6px;
-      background: #e74c3c;
+      background: #e74c3c; /* red for delete */
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
     }
 
-    button.delete-btn:hover {
-      background: #c0392b; /* hover effect for Delete button */
+    button:hover {
+      background: #c0392b;
     }
 
-    .task {
-      margin: 5px 0;
-      font-size: 16px;
+    .add-btn {
+      margin-top: 5px;
+      width: 100%;
+      background: #3498db; /* blue for add */
+    }
+
+    .add-btn:hover {
+      background: #2980b9;
     }
   </style>
 </head>
 <body>
 
-<h1>Kap Cookie Pancho Task Board</h1>
+<h1>Mobilescript Task Board</h1>
 <div class="date" id="todayDate"></div>
 
 <div class="container" id="board"></div>
 
 <script>
-  // Fixed key so tasks persist across days
-  const today = "officeTasks";  
+  // Fixed key so tasks persist day-to-day
+  const today = "officeTasks";
 
   // Employee names
   const employees = ["Kap", "Cookie", "Pancho"];
@@ -108,7 +101,7 @@
     if (!data[name]) data[name] = [];
   });
 
-  // Render the tasks
+  // Render the board
   function render() {
     const board = document.getElementById("board");
     board.innerHTML = "";
@@ -116,9 +109,10 @@
     employees.forEach(name => {
       let tasksHTML = data[name].map((task, i) => `
         <div class="task">
-          <input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTask('${name}', ${i})">
+          <input type="checkbox" ${task.done ? "checked" : ""} 
+            onchange="toggleTask('${name}', ${i})">
           ${task.text}
-          <button class="delete-btn" onclick="deleteTask('${name}', ${i})">Delete</button>
+          <button onclick="deleteTask('${name}', ${i})">Delete</button>
         </div>
       `).join("");
 
@@ -127,7 +121,7 @@
           <h3>${name}</h3>
           ${tasksHTML}
           <input type="text" id="${name}" placeholder="New task">
-          <button onclick="addTask('${name}')">Add Task</button>
+          <button class="add-btn" onclick="addTask('${name}')">Add Task</button>
         </div>
       `;
     });
@@ -135,7 +129,7 @@
     localStorage.setItem(today, JSON.stringify(data));
   }
 
-  // Add a new task
+  // Add a task
   function addTask(name) {
     const input = document.getElementById(name);
     if (input.value.trim() !== "") {
@@ -145,7 +139,7 @@
     }
   }
 
-  // Toggle task completion
+  // Toggle task done
   function toggleTask(name, index) {
     data[name][index].done = !data[name][index].done;
     render();
@@ -157,15 +151,9 @@
     render();
   }
 
-  // Show the date (optional, just for reference)
-  const todayDate = new Date().toDateString();
-  document.getElementById("todayDate").innerText = todayDate;
-
-  // Initial render
+  // Show board
   render();
 </script>
 
 </body>
 </html>
-
-
