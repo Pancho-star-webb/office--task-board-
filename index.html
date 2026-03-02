@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Small Office Task Board</title>
+  <title>MOBILESCRIPT Task Board</title>
   <style>
     body {
       font-family: Arial;
@@ -15,6 +15,11 @@
       color: white;
       padding: 20px;
       margin: 0;
+    }
+
+    .date {
+      margin: 10px;
+      font-size: 20px;
     }
 
     .container {
@@ -36,87 +41,131 @@
 
     .employee h3 {
       text-align: center;
+      margin-top: 0;
     }
 
     input[type="text"] {
       width: 100%;
       margin-top: 10px;
       padding: 5px;
+      box-sizing: border-box;
     }
 
+    /* Add Task buttons */
     button {
-      margin-top: 5px;
       padding: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px;
       width: 100%;
       background: #3498db;
       color: white;
+    }
+
+    button:hover {
+      background: #2980b9;  /* hover effect for Add Task button */
+    }
+
+    /* Delete button styles */
+    button.delete-btn {
+      margin-left: 5px;
+      padding: 3px 6px;
+      background: #e74c3c;
+      color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button.delete-btn:hover {
+      background: #c0392b; /* hover effect for Delete button */
+    }
+
+    .task {
+      margin: 5px 0;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
 
-<h1>MOBILESCRIPT Office Task Board</h1>
-<p id="todayDate"></p>
+<h1>Kap Cookie Pancho Task Board</h1>
+<div class="date" id="todayDate"></div>
 
 <div class="container" id="board"></div>
 
 <script>
-const today = new Date().toDateString();
-document.getElementById("todayDate").innerText = today;
+  // Fixed key so tasks persist across days
+  const today = "officeTasks";  
 
-const employees = ["kaptain", "Brooklyn", "PANCHO"];
+  // Employee names
+  const employees = ["Kap", "Cookie", "Pancho"];
 
-let data = JSON.parse(localStorage.getItem(today)) || {};
-
-employees.forEach(name => {
-  if (!data[name]) data[name] = [];
-});
-
-function render() {
-  const board = document.getElementById("board");
-  board.innerHTML = "";
-
+  // Load tasks from localStorage
+  let data = JSON.parse(localStorage.getItem(today)) || {};
   employees.forEach(name => {
-    let tasksHTML = data[name].map((task, i) => `
-      <div>
-        <input type="checkbox" ${task.done ? "checked" : ""} 
-        onchange="toggle('${name}', ${i})">
-        ${task.text}
-        <button onclick="deleteTask('${name}',${i})">Delete</button>    
-      </div>
-    `).join("");
-
-    board.innerHTML += `
-      <div class="employee">
-        <h3>${name}</h3>
-        ${tasksHTML}
-        <input type="text" id="${name}" placeholder="New task">
-        <button onclick="addTask('${name}')">Add Task</button>
-      </div>
-    `;
+    if (!data[name]) data[name] = [];
   });
 
-  localStorage.setItem(today, JSON.stringify(data));
-}
+  // Render the tasks
+  function render() {
+    const board = document.getElementById("board");
+    board.innerHTML = "";
 
-function addTask(name) {
-  const input = document.getElementById(name);
-  if (input.value.trim() !== "") {
-    data[name].push({text: input.value, done: false});
-    input.value = "";
+    employees.forEach(name => {
+      let tasksHTML = data[name].map((task, i) => `
+        <div class="task">
+          <input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTask('${name}', ${i})">
+          ${task.text}
+          <button class="delete-btn" onclick="deleteTask('${name}', ${i})">Delete</button>
+        </div>
+      `).join("");
+
+      board.innerHTML += `
+        <div class="employee">
+          <h3>${name}</h3>
+          ${tasksHTML}
+          <input type="text" id="${name}" placeholder="New task">
+          <button onclick="addTask('${name}')">Add Task</button>
+        </div>
+      `;
+    });
+
+    localStorage.setItem(today, JSON.stringify(data));
+  }
+
+  // Add a new task
+  function addTask(name) {
+    const input = document.getElementById(name);
+    if (input.value.trim() !== "") {
+      data[name].push({ text: input.value, done: false });
+      input.value = "";
+      render();
+    }
+  }
+
+  // Toggle task completion
+  function toggleTask(name, index) {
+    data[name][index].done = !data[name][index].done;
     render();
   }
-}
 
-function toggle(name, index) {
-  data[name][index].done = !data[name][index].done;
+  // Delete a task
+  function deleteTask(name, index) {
+    data[name].splice(index, 1);
+    render();
+  }
+
+  // Show the date (optional, just for reference)
+  const todayDate = new Date().toDateString();
+  document.getElementById("todayDate").innerText = todayDate;
+
+  // Initial render
   render();
-}
-
-render();
 </script>
 
 </body>
 </html>
+
+
