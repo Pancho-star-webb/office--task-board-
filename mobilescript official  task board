@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Small Office Task Board</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #eef2f7;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      background: #34495e;
+      color: white;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+      flex-wrap: wrap;
+    }
+
+    .employee {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 250px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+
+    .employee h3 {
+      text-align: center;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      margin-top: 10px;
+      padding: 5px;
+    }
+
+    button {
+      margin-top: 5px;
+      padding: 5px;
+      width: 100%;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Small Office Task Board</h1>
+<p id="todayDate"></p>
+
+<div class="container" id="board"></div>
+
+<script>
+const today = new Date().toDateString();
+document.getElementById("todayDate").innerText = today;
+
+const employees = ["Sarah", "John", "Maria"];
+
+let data = JSON.parse(localStorage.getItem(today)) || {};
+
+employees.forEach(name => {
+  if (!data[name]) data[name] = [];
+});
+
+function render() {
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+
+  employees.forEach(name => {
+    let tasksHTML = data[name].map((task, i) => `
+      <div>
+        <input type="checkbox" ${task.done ? "checked" : ""} 
+        onchange="toggle('${name}', ${i})">
+        ${task.text}
+      </div>
+    `).join("");
+
+    board.innerHTML += `
+      <div class="employee">
+        <h3>${name}</h3>
+        ${tasksHTML}
+        <input type="text" id="${name}" placeholder="New task">
+        <button onclick="addTask('${name}')">Add Task</button>
+      </div>
+    `;
+  });
+
+  localStorage.setItem(today, JSON.stringify(data));
+}
+
+function addTask(name) {
+  const input = document.getElementById(name);
+  if (input.value.trim() !== "") {
+    data[name].push({text: input.value, done: false});
+    input.value = "";
+    render();
+  }
+}
+
+function toggle(name, index) {
+  data[name][index].done = !data[name][index].done;
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
